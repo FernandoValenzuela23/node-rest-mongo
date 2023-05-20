@@ -79,7 +79,7 @@ const post = async (req, res = response) => {
 
 const deleteUser = async(req, res = response) => {
     const id = req.params.id;
-    
+
     //await Usuario.findByIdAndDelete(id);
 
     // Buscar y actualizar al mismo tiempo

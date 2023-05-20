@@ -1,6 +1,7 @@
 const {validationResult} = require('express-validator')
 
-const validateUserFields = (req, res, next) => {
+// Metodo generico que se utiliza en todos las apis para validar si hubo o no errores en los checks
+const validateFields = (req, res, next) => {
 
     const errors = validationResult(req);
     
@@ -11,4 +12,4 @@ const validateUserFields = (req, res, next) => {
     next();
 }
 
-module.exports = { validateUserFields }
+module.exports = { validateFields }

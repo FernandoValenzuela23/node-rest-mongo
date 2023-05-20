@@ -5,7 +5,13 @@ const {
     post,
     deleteUser } = require('../controllers/user.controller');
 const { check } = require('express-validator');
-const { validateUserFields } = require('../middlewares/validate-fields')
+
+const { 
+    validateFields, 
+    validateJWT, 
+    isAdmin, 
+    isAnyRol } = require('../middlewares') // aqui se uso index.js en la carpeta desde la cual se desea importar en una sola referencia
+
 const { 
     isRoleValid, 
     emailExists, 
@@ -18,9 +24,10 @@ const router = Router();
 
 router.get('',
 [
+    validateJWT, // middleware para validar el token
     check('page', 'Debe ser numerico').custom(p => p ? isNumeric(p) : true),
     check('pagesize', 'Debe ser numerico').custom(p => p ? isNumeric(p) : true),
-    validateUserFields
+    validateFields
 ], 
 get);
 
@@ -32,7 +39,7 @@ router.put('/:id',
     check('email', 'Email no valido').isEmail(),
     check('password', 'Password debe tener al menos 6 caracteres').isLength({min: 6, max: 10}),
     check('role').custom(r => undefined ? true : isRoleValid),
-    validateUserFields
+    validateFields
 ],
 put);
 
@@ -43,15 +50,18 @@ router.post('/',
     check('password', 'Password debe tener al menos 6 caracteres').isLength({min: 6, max: 10}),
     check('role').custom(isRoleValid),
     check('email').custom(emailExists),
-    validateUserFields
+    validateFields
 ], 
 post);
 
 router.delete('/:id', 
 [
+    validateJWT, // Middleware
+    //isAdmin, // Middleware comentado porque solo es para admin
+    isAnyRol('ADMIN','IT'), // Middleware especial con parametros
     check('id', 'No es un Id valido').isMongoId(),
     check('id').custom(existsUserId),
-    validateUserFields
+    validateFields
 ], 
 deleteUser);
 

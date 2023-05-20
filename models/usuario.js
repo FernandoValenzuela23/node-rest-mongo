@@ -35,8 +35,8 @@ const UsuarioSchema = Schema({
 // debe ser una funcion normal porque usa el objeto this, 
 // con esto se quita propiedades que crea mongo pero que no deseamos manipular 
 UsuarioSchema.methods.toJSON = function() {
-    const { __v, password, ...usuario} = this.toObject(); // quitar version y password del objeto json
-    return usuario;
+    const { _id, __v, password, ...usuario} = this.toObject(); // quitar version y password del objeto json
+    return { uid: _id, ...usuario};
 }
 
 module.exports = model('Usuarios', UsuarioSchema);
