@@ -4,9 +4,134 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Google Sign In</title>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
-    <h1>ACCESO DENEGADO</h1>
+    <h1>GOOGLE SIGN IN</h1>
+    <hr>
+    
+    <div id="g_id_onload"
+         data-client_id="827793711630-3iqoju02j378rd6c3nn7i3erh4c2mik0.apps.googleusercontent.com"
+         data-auto_prompt="false"
+         data-callback="handleCredentialResponse">
+    </div>
+    <div class="g_id_signin"
+        data-type="standard"
+        data-size="large"
+        data-theme="outline"
+        data-text="sign_in_with"
+        data-shape="rectangular"
+        data-logo_alignment="left">
+    </div>
+
+    <br>
+    <button id="buttonSignOut">Sign Out</button>
+
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script>
+        async function handleCredentialResponse(response) {
+           // decodeJwtResponse() is a custom function defined by you
+           // to decode the credential response.
+           /*const responsePayload = decodeJwtResponse(response.credential);
+      
+           console.log("ID: " + responsePayload.sub);
+           console.log('Full Name: ' + responsePayload.name);
+           console.log('Given Name: ' + responsePayload.given_name);
+           console.log('Family Name: ' + responsePayload.family_name);
+           console.log("Image URL: " + responsePayload.picture);
+           console.log("Email: " + responsePayload.email);*/
+
+
+
+           console.log('Google Resp: ', response);
+           // En vez del codigo original de la pagina de google
+           //console.log('Google_id_token: ', response.credential);
+
+           const payload = {
+                "id_token": response.credential
+            }
+
+           try {
+            const resp = await fetch('http://localhost:8080/api/auth/google', {
+                method: "POST",
+                body: JSON.stringify(payload),
+                headers: {"Content-type": "application/json;charset=UTF-8"}
+                });
+
+                if (resp.status == 200) {
+                    const data = await resp.json();
+                    console.log(data)
+                    localStorage.setItem('google-token', response.credential)
+                    localStorage.setItem('email', data.User.email)
+                }
+           } catch (error) {
+            console.log(error);
+           }
+           
+            
+
+        }
+
+        const buttonSignOut = document.getElementById("buttonSignOut");
+        
+
+        buttonSignOut.onclick = () => {
+            // Aqui se encuentra en el FE datos basicos del logueo
+            // console.log(google.accounts.id)
+            /* NO FUNCIONA
+            google.accounts.id.revoke(localStorage.getItem('email'), done => {
+                localStorage.clear();
+                location.reload();
+
+            });
+            */
+
+            /*
+            google.accounts.oauth2.revoke(localStorage.getItem('google-token'), () => {
+                console.log('deslogueado')
+            })
+            */
+
+            //google.accounts.id.disableAutoSelect();
+
+            //disconnectUser(); 
+
+            //revokeAccess();  
+            
+            //deleteCookies();
+
+            // NINGUNA DE LAS OPCIONES ANTERIORES FUNCIONO, ASI QUE:
+            localStorage.clear();
+            //window.location = "https://mail.google.com/mail/u/0/?logout&hl=en";
+            window.open("https://mail.google.com/mail/u/0/?logout&hl=en", "_blank");
+        }
+
+        function disconnectUser() {
+            var revokeUrl = 'https://oauth2.googleapis.com/revoke?token=' +
+                localStorage.getItem('google-token');
+
+            // Perform an asynchronous GET request.
+            $.ajax({
+                type: 'POST',
+                url: revokeUrl,
+                async: false,
+                contentType: "application/x-www-form-urlencoded",
+                success: function(nullResponse) {
+                    // Do something now that user is disconnected
+                    // The response is always undefined.
+                    console.log('Deslogueado de google')
+                    localStorage.clear();
+                    location.reload();
+                },
+                error: function(e) {
+                    console.log(e)
+                }
+            });
+        }
+
+
+      </script>
 </body>
 </html>
